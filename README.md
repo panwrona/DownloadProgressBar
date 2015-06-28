@@ -1,5 +1,7 @@
 # Download Progress Bar
 
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DownloadProgressBar-green.svg?style=flat)](https://android-arsenal.com/details/1/2059)
+
 Android progress bar with cool animation, inspired by : https://dribbble.com/shots/2012292-Download-Animation
 
 ![Download Progress Bar Animation](success.gif)
@@ -86,7 +88,6 @@ downloadProgressBar.setOnProgressUpdateListener(new DownloadProgressBar.OnProgre
 ###Developed By
 - Mariusz Brona - <mariusz.brona@gmail.com>
 
----
 ###License
 
 ```
