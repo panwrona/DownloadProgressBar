@@ -3,6 +3,7 @@
 Android progress bar with cool animation, inspired by : https://dribbble.com/shots/2012292-Download-Animation
 
 ![Download Progress Bar Animation](success.gif)
+---
 ![Download Progress Bar Animation](error.gif)
 
 ---
