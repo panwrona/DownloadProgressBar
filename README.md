@@ -82,7 +82,7 @@ downloadProgressBar.setOnProgressUpdateListener(new DownloadProgressBar.OnProgre
 
             }
         });
-        ```
+```
 ###Developed By
 - Mariusz Brona - <mariusz.brona@gmail.com>
 
