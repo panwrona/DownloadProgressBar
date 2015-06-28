@@ -2,8 +2,8 @@
 
 Android progress bar with cool animation, inspired by : https://dribbble.com/shots/2012292-Download-Animation
 
-![Download Progress Bar Animation](downloadprogressbar1.gif)
-![Download Progress Bar Animation](downloadprogressbar2.gif)
+![Download Progress Bar Animation](success.gif)
+![Download Progress Bar Animation](error.gif)
 
 ---
 ###Attributes
@@ -41,18 +41,18 @@ dependencies {
 Below I will show You how to use this custom view. First we need to distinguish two kinds of result we can get: success and error.
 To play success animation, simply call this one line:
 ```java
-DownloadProgressView downloadProgressView = (DownloadProgressView)findViewById(R.id.download_progress_view);
-downloadProgressView.playToSuccess();
+DownloadProgressBar downloadProgressBar = (DownloadProgressBar)findViewById(R.id.download_progress_view);
+downloadProgressBar.playToSuccess();
 ```
 If you want to play error animation, simply call:
 ```java
-DownloadProgressView downloadProgressView = (DownloadProgressView)findViewById(R.id.download_progress_view);
-downloadProgressView.playToError();
+DownloadProgressBar downloadProgressBar = (DownloadProgressBar)findViewById(R.id.download_progress_view);
+downloadProgressBar.playToError();
 ```
 I've also added listener for common events: whole animation start, whole animation end, progress update, animation success, animation error.
 To define it, call this one:
 ```java
-downloadProgressView.setOnProgressUpdateListener(new DownloadProgressView.OnProgressUpdateListener() {
+downloadProgressBar.setOnProgressUpdateListener(new DownloadProgressBar.OnProgressUpdateListener() {
             @Override
             public void onProgressUpdate(float currentPlayTime) {
                 // Here we are setting % value on our text view.
@@ -62,13 +62,13 @@ downloadProgressView.setOnProgressUpdateListener(new DownloadProgressView.OnProg
             @Override
             public void onAnimationStarted() {
                 // Here we are disabling our view because of possible interactions while animating.
-                downloadProgressView.setEnabled(false);
+                downloadProgressBar.setEnabled(false);
             }
 
             @Override
             public void onAnimationEnded() {
                 successTextView.setText("Click to download");
-                downloadProgressView.setEnabled(true);
+                downloadProgressBar.setEnabled(true);
             }
 
             @Override

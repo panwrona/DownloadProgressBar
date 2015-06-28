@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
         downloadProgressView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                downloadProgressView.playToSuccess();
+                downloadProgressView.playToError();
             }
         });
         downloadProgressView.setOnProgressUpdateListener(new DownloadProgressBar.OnProgressUpdateListener() {
@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onAnimationError() {
-
+                successTextView.setText("Aborted!");
             }
         });
 

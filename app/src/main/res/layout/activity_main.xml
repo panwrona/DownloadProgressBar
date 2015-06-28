@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/blue_primary_color">
+    android:background="@color/red_primary_color">
 
     <com.panwrona.downloadprogressbar.library.DownloadProgressBar
         android:id="@+id/dpv3"
@@ -13,10 +13,10 @@
         android:layout_height="140dp"
         android:layout_gravity="center"
         android:layout_marginTop="100dp"
-        dpv:circleBackgroundColor="@color/blue_light_primary_color"
-        dpv:progressBackgroundColor="@color/blue_light_primary_color"
-        dpv:progressColor="@color/blue_text_icon_color"
-        dpv:drawingColor="@color/blue_text_icon_color"
+        dpv:circleBackgroundColor="@color/red_light_primary_color"
+        dpv:progressBackgroundColor="@color/red_light_primary_color"
+        dpv:progressColor="@color/red_text_icon_color"
+        dpv:drawingColor="@color/red_text_icon_color"
         dpv:progressDuration="2000"
         dpv:resultDuration="5000"
         dpv:circleRadius="48dp"
