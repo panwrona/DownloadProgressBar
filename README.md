@@ -26,30 +26,6 @@ Android progress bar with cool animation, inspired by : https://dribbble.com/sho
 
 ---
 
-###Updates
-- v1.1
-    - Added new animation - ManipulateProgressAnimation - now you can set your progress manually. The default result is set to Success. Just play the animation with:
-    ```java
-    downloadProgressBar.playManualProgressAnimation();
-    ```
-    - You can change the result type with:
-    ```java
-    downloadProgressBar.setErrorResultState();
-    ```
-    or
-    ```java
-    downloadProgressBar.setSuccessResultState();
-    ```
-    - To set the progress use setProgress method. The value must be between 1-100 - it determines percent value:
-    ```java
-    downloadProgressBar.setProgress(value);
-    ```
-    - You can abort the progress and set the error result immediately just by typing:
-    ```java
-    downloadProgressBar.abortDownload();
-    ```
-    - Also I've added two methods to the callback - onManualProgressStarted() and onManualProgressEnded(). They're called everytime the setProgress() method ends.
-
 ###Download
 
 ```groovy
@@ -60,7 +36,7 @@ repositories {
 }
 
 dependencies {
-    compile 'com.github.panwrona:DownloadProgressBar:1.1'
+    compile 'com.github.panwrona:DownloadProgressBar:1.0'
 }
 ```
 
