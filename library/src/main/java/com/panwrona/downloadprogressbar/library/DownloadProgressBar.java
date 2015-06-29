@@ -15,6 +15,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AnimationSet;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.OvershootInterpolator;
@@ -68,17 +69,24 @@ public class DownloadProgressBar extends View {
     private ValueAnimator mErrorAnimation;
     private ValueAnimator mArrowLineToDot;
     private ValueAnimator mArrowLineToHorizontalLine;
+    private ValueAnimator mManualProgressAnimation;
 
     private RectF mCircleBounds;
     private RectF mProgressBackgroundBounds = new RectF();
     private RectF mProgressBounds = new RectF();
 
     private OnProgressUpdateListener mOnProgressUpdateListener;
+    private AnimationSet mAbortAnimationSet;
+    private AnimatorSet mManualProgressAnimationSet;
+    private float mFromArc = 0;
+    private float mToArc = 0;
+    private float mCurrentGlobalManualProgressValue;
 
-    private enum State {ANIMATING_LINE_TO_DOT, IDLE, ANIMATING_SUCCESS, ANIMATING_ERROR, ANIMATING_PROGRESS}
+    private enum State {ANIMATING_LINE_TO_DOT, IDLE, ANIMATING_SUCCESS, ANIMATING_ERROR, ANIMATING_PROGRESS, ANIMATING_MANUAL_PROGRESS}
 
     private State mState;
     private State mResultState;
+    private State mWhichProgress;
 
     public DownloadProgressBar(Context context) {
         super(context);
@@ -239,8 +247,12 @@ public class DownloadProgressBar extends View {
 
             @Override
             public void onAnimationEnd(Animator animator) {
-                mProgressAnimationSet.start();
-                mState = State.ANIMATING_PROGRESS;
+                if(mWhichProgress == State.ANIMATING_PROGRESS)
+                    mProgressAnimationSet.start();
+                else if(mWhichProgress == State.ANIMATING_MANUAL_PROGRESS)
+                    mManualProgressAnimationSet.start();
+
+                mState = mWhichProgress;
 
             }
 
@@ -293,6 +305,47 @@ public class DownloadProgressBar extends View {
         });
         mProgressAnimation.setDuration(mProgressDuration);
 
+        mManualProgressAnimation = ValueAnimator.ofFloat(mFromArc, mToArc);
+        mManualProgressAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                mCurrentGlobalManualProgressValue = (float)valueAnimator.getAnimatedValue();
+                invalidate();
+            }
+        });
+        mManualProgressAnimation.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+                if(mOnProgressUpdateListener != null) {
+                    mOnProgressUpdateListener.onManualProgressStarted();
+                }
+                mDotToProgressAnimatedValue = 0;
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                if(mOnProgressUpdateListener != null) {
+                    mOnProgressUpdateListener.onManualProgressEnded();
+                }
+                if(mToArc > 359) {
+                    mCollapseAnimation.start();
+                }
+
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        });
+
+
+
         mExpandAnimation = ValueAnimator.ofFloat(0, mRadius / 6);
         mExpandAnimation.setDuration(300);
         mExpandAnimation.setInterpolator(new DecelerateInterpolator());
@@ -307,6 +360,33 @@ public class DownloadProgressBar extends View {
         mCollapseAnimation = ValueAnimator.ofFloat(mRadius / 6, mStrokeWidth / 2);
         mCollapseAnimation.setDuration(300);
         mCollapseAnimation.setStartDelay(300);
+        mCollapseAnimation.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                if(mState == State.ANIMATING_MANUAL_PROGRESS) {
+                    if (mResultState == State.ANIMATING_ERROR) {
+                        mErrorAnimation.start();
+                    } else if (mResultState == State.ANIMATING_SUCCESS) {
+                        mSuccessAnimation.start();
+                    }
+                }
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        });
         mCollapseAnimation.setInterpolator(new AccelerateDecelerateInterpolator());
         mCollapseAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
@@ -315,6 +395,8 @@ public class DownloadProgressBar extends View {
                 invalidate();
             }
         });
+        mManualProgressAnimationSet = new AnimatorSet();
+        mManualProgressAnimationSet.playSequentially(mExpandAnimation, mManualProgressAnimation);
 
         mProgressAnimationSet = new AnimatorSet();
         mProgressAnimationSet.addListener(new Animator.AnimatorListener() {
@@ -443,6 +525,10 @@ public class DownloadProgressBar extends View {
         mArrowLineToDotAnimatedValue = 0;
         mArrowLineToHorizontalLineAnimatedValue = 0;
         mCurrentGlobalProgressValue = 0;
+        mCurrentGlobalManualProgressValue = 0;
+        mManualProgressAnimation.setFloatValues(0,0);
+        mToArc = 0;
+        mFromArc = 0;
     }
 
     private void drawing(Canvas canvas) {
@@ -493,6 +579,24 @@ public class DownloadProgressBar extends View {
                 mProgressBounds.left = mCenterX - mRadius / 2 - mArrowLineToHorizontalLineAnimatedValue / 2;
                 mProgressBounds.top = mCenterY - mExpandCollapseValue;
                 mProgressBounds.right = mCenterX - mRadius / 2 - mArrowLineToHorizontalLineAnimatedValue / 2 + progress * mCurrentGlobalProgressValue;
+                mProgressBounds.bottom = mCenterY + mExpandCollapseValue;
+                canvas.drawRoundRect(mProgressBounds, 45, 45, mProgressPaint);
+                break;
+            case ANIMATING_MANUAL_PROGRESS:
+                float manualProgress = ((mCenterX + mRadius / 2 + mArrowLineToHorizontalLineAnimatedValue / 2) - (mCenterX - mRadius / 2 - mArrowLineToHorizontalLineAnimatedValue / 2)) / 360f;
+
+                mDrawingPaint.setStrokeWidth(mStrokeWidth);
+                canvas.drawArc(mCircleBounds, -90, mCurrentGlobalManualProgressValue, false, mDrawingPaint);
+
+                mProgressBackgroundBounds.left = mCenterX - mRadius / 2 - mArrowLineToHorizontalLineAnimatedValue / 2;
+                mProgressBackgroundBounds.top = mCenterY - mExpandCollapseValue;
+                mProgressBackgroundBounds.right =  mCenterX + mRadius / 2 + mArrowLineToHorizontalLineAnimatedValue / 2;
+                mProgressBackgroundBounds.bottom = mCenterY + mExpandCollapseValue;
+                canvas.drawRoundRect(mProgressBackgroundBounds, 45, 45, mProgressBackgroundPaint);
+
+                mProgressBounds.left = mCenterX - mRadius / 2 - mArrowLineToHorizontalLineAnimatedValue / 2;
+                mProgressBounds.top = mCenterY - mExpandCollapseValue;
+                mProgressBounds.right = mCenterX - mRadius / 2 - mArrowLineToHorizontalLineAnimatedValue / 2 + manualProgress * mCurrentGlobalManualProgressValue;
                 mProgressBounds.bottom = mCenterY + mExpandCollapseValue;
                 canvas.drawRoundRect(mProgressBounds, 45, 45, mProgressPaint);
                 break;
@@ -554,7 +658,6 @@ public class DownloadProgressBar extends View {
         }
     }
 
-
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -563,13 +666,52 @@ public class DownloadProgressBar extends View {
 
     public void playToSuccess() {
         mResultState = State.ANIMATING_SUCCESS;
+        mWhichProgress = State.ANIMATING_PROGRESS;
         mArrowToLineAnimatorSet.start();
         invalidate();
     }
 
     public void playToError() {
+        mWhichProgress = State.ANIMATING_PROGRESS;
         mResultState = State.ANIMATING_ERROR;
         mArrowToLineAnimatorSet.start();
+        invalidate();
+    }
+
+    public void playManualProgressAnimation() {
+        mWhichProgress = State.ANIMATING_MANUAL_PROGRESS;
+        mResultState = State.ANIMATING_SUCCESS;
+        mArrowToLineAnimatorSet.start();
+        invalidate();
+    }
+
+    public void abortDownload() {
+        if(mExpandAnimation.isRunning() || mProgressAnimation.isRunning()) {
+            mProgressAnimationSet.cancel();
+            mCollapseAnimation.start();
+            invalidate();
+        }
+    }
+
+    public void setErrorResultState() {
+        if(mSuccessAnimation.isRunning() || mErrorAnimation.isRunning())
+            return;
+        mResultState = State.ANIMATING_ERROR;
+    }
+
+    public void setSuccessResultState() {
+        if(mSuccessAnimation.isRunning() || mErrorAnimation.isRunning())
+            return;
+        mResultState = State.ANIMATING_SUCCESS;
+    }
+
+    public void setProgress(int value) {
+        if(value < 1 || value > 100)
+            return;
+        mToArc = value * 3.6f;
+        mManualProgressAnimation.setFloatValues(mFromArc, mToArc);
+        mManualProgressAnimation.start();
+        mFromArc = mToArc;
         invalidate();
     }
 
@@ -583,6 +725,10 @@ public class DownloadProgressBar extends View {
         void onAnimationSuccess();
 
         void onAnimationError();
+
+        void onManualProgressStarted();
+
+        void onManualProgressEnded();
     }
 
     public void setOnProgressUpdateListener(OnProgressUpdateListener listener) {
@@ -692,6 +838,7 @@ public class DownloadProgressBar extends View {
             dest.writeInt(isFlashing ? 1 : 0);
             dest.writeInt(isConfigurationChanged ? 1 : 0);
             dest.writeLongArray(mmCurrentPlayTime);
+
         }
 
         public static final Creator<SavedState> CREATOR = new Creator<SavedState>() {

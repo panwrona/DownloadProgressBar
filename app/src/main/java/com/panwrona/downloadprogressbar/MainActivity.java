@@ -8,28 +8,38 @@ import android.widget.TextView;
 
 import com.panwrona.downloadprogressbar.library.DownloadProgressBar;
 
+import java.util.Random;
+
 public class MainActivity extends AppCompatActivity {
+
+    private int val = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         final DownloadProgressBar downloadProgressView = (DownloadProgressBar)findViewById(R.id.dpv3);
         final TextView successTextView = (TextView)findViewById(R.id.success_text_view);
+        successTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                val = val + 10;
+                downloadProgressView.setProgress(val);
+            }
+        });
         Typeface robotoFont=Typeface.createFromAsset(getAssets(), "fonts/Roboto-Light.ttf");
         successTextView.setTypeface(robotoFont);
 
         downloadProgressView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                downloadProgressView.playToError();
+                downloadProgressView.playManualProgressAnimation();
             }
         });
         downloadProgressView.setOnProgressUpdateListener(new DownloadProgressBar.OnProgressUpdateListener() {
             @Override
             public void onProgressUpdate(float currentPlayTime) {
-                successTextView.setText(Math.round(currentPlayTime / 3.6) + " %");
+
             }
 
             @Override
@@ -39,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onAnimationEnded() {
+                val = 0;
                 successTextView.setText("Click to download");
                 downloadProgressView.setEnabled(true);
             }
@@ -52,8 +63,16 @@ public class MainActivity extends AppCompatActivity {
             public void onAnimationError() {
                 successTextView.setText("Aborted!");
             }
+
+            @Override
+            public void onManualProgressStarted() {
+
+            }
+
+            @Override
+            public void onManualProgressEnded() {
+
+            }
         });
-
-
     }
 }

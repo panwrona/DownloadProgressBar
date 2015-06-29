@@ -1,5 +1,8 @@
 apply plugin: 'com.android.application'
 
+def versionMajor = 1
+def versionMinor = 1
+
 android {
     compileSdkVersion 22
     buildToolsVersion "22.0.1"
@@ -8,8 +11,8 @@ android {
         applicationId "com.panwrona.downloadprogressbar"
         minSdkVersion 11
         targetSdkVersion 22
-        versionCode 1
-        versionName "1.0"
+        versionCode versionMajor * 10000 + versionMinor * 1000
+        versionName "${versionMajor}.${versionMinor}"
     }
     buildTypes {
         release {

@@ -25,6 +25,31 @@ Android progress bar with cool animation, inspired by : https://dribbble.com/sho
 | `app:progressBackgroundColor `| color     | Color used for drawing progress background (light blue on gif)       |
 
 ---
+
+###Updates
+- v1.1
+    - Added new animation - ManipulateProgressAnimation - now you can set your progress manually. The default result is set to Success. Just play the animation with:
+    ```java
+    downloadProgressBar.playManualProgressAnimation();
+    ```
+    - You can change the result type with:
+    ```java
+    downloadProgressBar.setErrorResultState();
+    ```
+    or
+    ```java
+    downloadProgressBar.setSuccessResultState();
+    ```
+    - To set the progress use setProgress method. The value must be between 1-100 - it determines percent value:
+    ```java
+    downloadProgressBar.setProgress(value);
+    ```
+    - You can abort the progress and set the error result immediately just by typing:
+    ```java
+    downloadProgressBar.abortDownload();
+    ```
+    - Also I've added two methods to the callback - onManualProgressStarted() and onManualProgressEnded(). They're called everytime the setProgress() method ends.
+
 ###Download
 
 ```groovy
@@ -35,7 +60,7 @@ repositories {
 }
 
 dependencies {
-    compile 'com.github.panwrona:DownloadProgressBar:1.0'
+    compile 'com.github.panwrona:DownloadProgressBar:1.1'
 }
 ```
 
@@ -87,6 +112,14 @@ downloadProgressBar.setOnProgressUpdateListener(new DownloadProgressBar.OnProgre
 ```
 ###Developed By
 - Mariusz Brona - <mariusz.brona@gmail.com>
+
+<a href="https://twitter.com/pan_wrona">
+  <img alt="Follow me on Twitter" src="http://imageshack.us/a/img812/3923/smallth.png" />
+</a>
+
+<a href="pl.linkedin.com/in/mariuszbrona">
+  <img alt="Add me to Linkedin" src="http://imageshack.us/a/img41/7877/smallld.png" />
+</a>
 
 ###License
 
