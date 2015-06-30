@@ -117,7 +117,7 @@ downloadProgressBar.setOnProgressUpdateListener(new DownloadProgressBar.OnProgre
   <img alt="Follow me on Twitter" src="http://imageshack.us/a/img812/3923/smallth.png" />
 </a>
 
-<a href="pl.linkedin.com/in/mariuszbrona">
+<a href="https://pl.linkedin.com/in/mariuszbrona">
   <img alt="Add me to Linkedin" src="http://imageshack.us/a/img41/7877/smallld.png" />
 </a>
 
