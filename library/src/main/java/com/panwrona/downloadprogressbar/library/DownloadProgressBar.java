@@ -1,8 +1,5 @@
 package com.panwrona.downloadprogressbar.library;
 
-import android.animation.Animator;
-import android.animation.AnimatorSet;
-import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -20,6 +17,10 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.OvershootInterpolator;
 
+import com.nineoldandroids.animation.Animator;
+import com.nineoldandroids.animation.AnimatorSet;
+import com.nineoldandroids.animation.ValueAnimator;
+
 public class DownloadProgressBar extends View {
 
     private static final String TAG = DownloadProgressBar.class.getSimpleName();
@@ -35,6 +36,7 @@ public class DownloadProgressBar extends View {
     private float mRadius;
     private float mStrokeWidth;
     private float mLineWidth;
+    private float mLengthFix;
     private float mArrowLineToDotAnimatedValue;
     private float mArrowLineToHorizontalLineAnimatedValue;
     private float mDotToProgressAnimatedValue;
@@ -104,6 +106,7 @@ public class DownloadProgressBar extends View {
             mRadius = array.getDimension(R.styleable.DownloadProgressView_circleRadius, 0);
             mStrokeWidth = array.getDimension(R.styleable.DownloadProgressView_strokeWidth, 0);
             mLineWidth = array.getDimension(R.styleable.DownloadProgressView_lineWidth, 0);
+            mLengthFix = (float) (mLineWidth / (2*Math.sqrt(2)));
             mProgressDuration = array.getInteger(R.styleable.DownloadProgressView_progressDuration, DEFAULT_PROGRESS_DURATION);
             mResultDuration = array.getInteger(R.styleable.DownloadProgressView_resultDuration, DEFAULT_RESULT_DURATION);
             mProgressBackgroundColor = array.getColor(R.styleable.DownloadProgressView_progressBackgroundColor, 0);
@@ -536,8 +539,8 @@ public class DownloadProgressBar extends View {
         switch (mState) {
             case IDLE:
                 canvas.drawLine(mCenterX, mCenterY - mRadius / 2, mCenterX, mCenterY + mRadius / 2, mDrawingPaint);
-                canvas.drawLine(mCenterX - mRadius / 2, mCenterY, mCenterX, mCenterY + mRadius / 2, mDrawingPaint);
-                canvas.drawLine(mCenterX, mCenterY + mRadius / 2, mCenterX + mRadius / 2, mCenterY, mDrawingPaint);
+                canvas.drawLine(mCenterX - mRadius / 2, mCenterY, mCenterX + mLengthFix, mCenterY + mRadius / 2 + mLengthFix, mDrawingPaint);
+                canvas.drawLine(mCenterX - mLengthFix, mCenterY + mRadius / 2 + mLengthFix, mCenterX + mRadius / 2, mCenterY, mDrawingPaint);
                 break;
             case ANIMATING_LINE_TO_DOT:
                 if (!mDotToProgressAnimation.isRunning()) {
@@ -552,13 +555,13 @@ public class DownloadProgressBar extends View {
                 canvas.drawLine(
                         mCenterX - mRadius / 2 - mArrowLineToHorizontalLineAnimatedValue / 2,
                         mCenterY,
-                        mCenterX,
-                        mCenterY + mRadius / 2 - mArrowLineToHorizontalLineAnimatedValue,
+                        mCenterX + mLengthFix,
+                        mCenterY + mRadius / 2 - mArrowLineToHorizontalLineAnimatedValue + mLengthFix,
                         mDrawingPaint
                 );
                 canvas.drawLine(
-                        mCenterX,
-                        mCenterY + mRadius / 2 - mArrowLineToHorizontalLineAnimatedValue,
+                        mCenterX - mLengthFix,
+                        mCenterY + mRadius / 2 - mArrowLineToHorizontalLineAnimatedValue + mLengthFix,
                         mCenterX + mRadius / 2 + mArrowLineToHorizontalLineAnimatedValue / 2,
                         mCenterY,
                         mDrawingPaint
